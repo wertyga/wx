@@ -1,0 +1,20 @@
+{
+  "name": "wx",
+  "version": "1.0.0",
+  "description": "State manager for react",
+  "main": "./index.js",
+  "scripts": {},
+  "keywords": [
+    "mobx",
+    "redux",
+    "state",
+    "manager"
+  ],
+  "author": "Alex Bronshtein",
+  "license": "ISC",
+  "devDependencies": {},
+  "dependencies": {
+    "react": "^17.0.2"
+  },
+  "types": "./index.d.ts"
+}
