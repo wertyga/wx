@@ -1,11 +1,11 @@
- <h3>This is the simplest state manager, based on React hooks</h3> 
+<h3>This is the simplest state manager, based on React hooks</h3>
 
 ```javascript
-npm install --save wx
+npm install --save @wertyga/wx
 ```
 
 ```javascript
-import { DraggableContainer } from 'wx';
+import { DraggableContainer } from '@wertyga/wx';
 import { UserStore } from './stores';
 
 const stores = {
@@ -16,13 +16,13 @@ const options = {
 	initialState: {
 		userStore: {
 			username: 'Frank Sinatra',
-        },
-    },
+		},
+	},
 	fetchClient: ApolloClient(),
 };
 
 <RootStoreProvider stores={stores} options={options}>
-  {children}
+	{children}
 </RootStoreProvider>
 ```
 

@@ -1,5 +1,5 @@
 {
-  "name": "wx",
+  "name": "@wertyga/wx",
   "version": "1.0.0",
   "description": "State manager for react",
   "main": "./index.js",
