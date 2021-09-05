@@ -14,18 +14,48 @@ const stores = {
 const options = {
 	initialState: {
 		userStore: {
-			username: 'Frank Sinatra',
+			username: 'Frank Sinatra', 
+            age: 51,
 		},
 	},
 	fetchClient: ApolloClient(),
 };
 
+type RootStore = {
+	userStore: UserStore,
+}
 export const ChildComponent = () => {
-	const userStore = useStores('userStore');
+	const { userStore } = useStores<RootStore>('userStore');
 	return (
 		<div>
 			<span>Singers...</span>
 			<span>{userStore.username}</span>
+		</div>
+	);
+};
+
+// To make re-render component only if was changed particular properties of store
+// You can pass an array of dependencies (propperties of store)
+export const ChildComponent = () => {
+	// Component will never do re-render if userStore.username was changed
+	const { userStore } = useStores<RootStore, RootStore['userStore']>('userStore', ['age']);
+	return (
+		<div>
+			<span>Singers...</span>
+			<span>{userStore.username}</span>
+			<span>{userStore.age}</span>
+		</div>
+	);
+};
+// Or you can pass "false" to make no react of store changing
+export const ChildComponent = () => {
+	// Component will never do re-render if any propperty of userStore was changed
+	const { userStore } = useStores<RootStore>('userStore', false);
+	return (
+		<div>
+			<span>Singers...</span>
+			<span>{userStore.username}</span>
+			<span>{userStore.age}</span>
 		</div>
 	);
 };
@@ -39,15 +69,15 @@ export const SomeComponent = () => {
 	);
 };
 ```
+| Properties of hook | Values of properties |
+| ------------- | ------------- |
+| first parameter  | name of store that you want to get  |
+| second parameter  | Array of store props that you want to observe OR false to disable this  |
 
 <h3>Store class example</h3>
 
 ```
 import { RootState } from '@wertyga/wx';
-
-type RootStore = {
-    userStore: UserStore,
-} 
 
 type ProductStoreType = RootState<RootStore, ApolloClient<any>>;
 

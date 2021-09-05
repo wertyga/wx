@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { webWorker } from './worker';
 import { initWebWorker } from './initWorker';
-import { Options } from './types';
+import { Options, RootState } from './types';
 
 let _initialStores;
 
@@ -30,7 +30,7 @@ export const getStoreInstanceName = (storeName: string) => (
 export function getOrInitialStores<STORES = any, FETCH = any>(stores: STORES, {
   initialState = {},
   fetchClient,
-}: Options<STORES, FETCH> = {}) {
+}: Options<STORES, FETCH> = {}): RootState<STORES, FETCH> {
   if (_initialStores) return _initialStores;
   
   const rootStore = new RootStore();
@@ -56,12 +56,28 @@ export function getOrInitialStores<STORES = any, FETCH = any>(stores: STORES, {
 // @ts-ignore
 export const worker: Worker = initWebWorker(webWorker);
 
-export const useStores = (storeName: string) => {
-  const [state, setState] = useState(0);
+const getPlainStore = (storeName: any) => ({
+  ..._initialStores[storeName],
+  ..._initialStores[storeName].__state,
+});
+
+export function useStores <R, SN = any>(
+  storeName: keyof R,
+  dependencies: (keyof SN)[] | false = [],
+): R {
+  const [state, setState] = useState(getPlainStore(storeName));
   
   const updateState = ({ data }: any) => {
     if (data.type !== storeName) return;
-    setState(Math.random());
+    const isNeedToUpdate =
+      dependencies &&
+      (!(dependencies as string[]).length
+        || (dependencies as string[]).find(dep => {
+          return _initialStores[storeName][dep] !== state[dep];
+        }));
+    if (!isNeedToUpdate) return;
+    
+    setState(getPlainStore(storeName));
   };
   
   useEffect(() => {
@@ -71,5 +87,7 @@ export const useStores = (storeName: string) => {
     };
   }, []);
   
-  return _initialStores[storeName];
+  return { [storeName]: (_initialStores as R)[storeName] } as any;
 };
+
+
