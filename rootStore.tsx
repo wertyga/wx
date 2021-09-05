@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { webWorker } from './worker';
+import { initWebWorker } from './initWorker';
 import { Options } from './types';
 
 let _initialStores;
@@ -19,6 +21,12 @@ export class RootStore{
   }
 }
 
+export const getStoreInstanceName = (storeName: string) => (
+  `${storeName
+    .charAt(0)
+    .toLowerCase()}${storeName.slice(1)}`
+);
+
 export function getOrInitialStores<STORES = any, FETCH = any>(stores: STORES, {
   initialState = {},
   fetchClient,
@@ -28,9 +36,7 @@ export function getOrInitialStores<STORES = any, FETCH = any>(stores: STORES, {
   const rootStore = new RootStore();
   return Object.entries(stores).reduce(
     (acc, [storeName, Store]) => {
-      const storeInstanceName = `${storeName
-        .charAt(0)
-        .toLowerCase()}${storeName.slice(1)}`;
+      const storeInstanceName = getStoreInstanceName(storeName);
       const storeInstance = new Store(initialState[storeInstanceName] || {});
       storeInstance.fetch = fetchClient;
       storeInstance.set = (key: string, value: any) => {
@@ -39,39 +45,34 @@ export function getOrInitialStores<STORES = any, FETCH = any>(stores: STORES, {
       rootStore.set(storeName, storeInstance);
       return {
         ...acc,
-        [storeInstanceName]: storeInstance,
+        [storeInstanceName]: Object.assign(storeInstance, initialState[storeInstanceName] || {}),
       };
     },
     {}
   );
 };
 
-const fillUpStoresReactivity = (setState: any, stores: Record<string, any>) => {
-  Object.entries(stores).forEach(([storeName, store]) => {
-    store.__proto__.updateState = storeData => {
-      setState(prev => ({
-        ...prev,
-        [storeName]: storeData,
-      }));
-    };
-    store.rootStore = stores;
-  })
-}
+// @ts-ignore
+export const worker: Worker = initWebWorker(webWorker);
 
-const RootStoreContext = React.createContext<any>({});
-export const useStores = <S, >(): S => React.useContext(RootStoreContext);
-
-export const RootStoreProvider = ({ children, options = {}, stores = {} }) => {
-  const [state, setState] = useState(() => {
-    return getOrInitialStores(stores, options);
-  });
-  if (typeof window !== 'undefined') {
-    fillUpStoresReactivity(setState, state);
-  }
+export const useStores = (storeName: string) => {
+  const [state, setState] = useState(0);
   
-  return (
-    <RootStoreContext.Provider value={state}>
-      {children}
-    </RootStoreContext.Provider>
-  );
+  const updateState = ({ data }: any) => {
+    if (data.type !== storeName) return;
+    setState(Math.random());
+  };
+  
+  useEffect(() => {
+    worker.addEventListener('message', updateState);
+    return () => {
+      worker.removeEventListener('message', updateState);
+    };
+  }, []);
+  
+  return _initialStores[storeName];
+};
+
+export const initializeRootStore = (stores = {}, options = {}) => {
+  _initialStores = getOrInitialStores(stores, options);
 };

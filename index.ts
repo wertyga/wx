@@ -1,2 +1,3 @@
-export { RootStoreProvider, useStores, getOrInitialStores } from './rootStore';
+export { useStores, initializeRootStore } from './rootStore';
 export { observe } from './utils';
+export * from './types';

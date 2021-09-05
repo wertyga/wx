@@ -1,15 +1,28 @@
+import { worker, getStoreInstanceName } from './rootStore';
+
+const sendData = (storeName: string, data: any) => {
+	worker.postMessage({
+		type: storeName,
+		data,
+	});
+};
+
 export function observe(initVal?) {
-	return function (target, name): any {
-		target[`__${name}`] = initVal;
+	return function (target, propertyKey): any {
+		if (!target.__state) {
+			target.__state = {};
+			Object.defineProperty(target, '__state', { enumerable: false });
+		}
+		target.__state[propertyKey] = initVal;
 		return {
 			set: function (value) {
-				this[`__${name}`] = value;
-				if (this.updateState) {
-					this.updateState(this);
-				}
+				console.log(value);
+				target.__state[propertyKey] = value;
+				const storeName = getStoreInstanceName(target.constructor.name);
+				sendData(storeName, target);
 			},
 			get: function() {
-				return this[`__${name}`];
+				return target.__state[propertyKey];
 			},
 			enumerable: true,
 			configurable: true
