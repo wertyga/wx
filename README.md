@@ -21,22 +21,22 @@ const options = {
 };
 
 export const ChildComponent = () => {
-	const userStore =  UserStore('userStore');
+	const userStore = useStores('userStore');
 	return (
-      <div>
-        <span>Singers...</span>
-        <span>{userStore.username}</span>
-      </div>
-    );
+		<div>
+			<span>Singers...</span>
+			<span>{userStore.username}</span>
+		</div>
+	);
 };
 
 export const SomeComponent = () => {
 	getOrInitialStores(stores, options);
 	return (
-      <div>
-        ...Some logic here
-      </div>
-    );
+		<div>
+			...Some logic here
+		</div>
+	);
 };
 ```
 
