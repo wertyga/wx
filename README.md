@@ -5,8 +5,7 @@ npm install --save @wertyga/wx
 ```
 
 ```javascript
-import { DraggableContainer } from '@wertyga/wx';
-import { UserStore } from './stores';
+import { getOrInitialStores, UserStore } from '@wertyga/wx';
 
 const stores = {
 	UserStore,
@@ -21,9 +20,24 @@ const options = {
 	fetchClient: ApolloClient(),
 };
 
-<RootStoreProvider stores={stores} options={options}>
-	{children}
-</RootStoreProvider>
+export const ChildComponent = () => {
+	const userStore =  UserStore('userStore');
+	return (
+      <div>
+        <span>Singers...</span>
+        <span>{userStore.username}</span>
+      </div>
+    );
+};
+
+export const SomeComponent = () => {
+	getOrInitialStores(stores, options);
+	return (
+      <div>
+        ...Some logic here
+      </div>
+    );
+};
 ```
 
 <h3>Store class example</h3>
