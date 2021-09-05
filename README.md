@@ -5,7 +5,7 @@ npm install --save @wertyga/wx
 ```
 
 ```javascript
-import { getOrInitialStores, UserStore } from '@wertyga/wx';
+import { getOrInitialStores, useStores } from '@wertyga/wx';
 
 const stores = {
 	UserStore,
