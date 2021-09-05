@@ -34,7 +34,7 @@ export function getOrInitialStores<STORES = any, FETCH = any>(stores: STORES, {
   if (_initialStores) return _initialStores;
   
   const rootStore = new RootStore();
-  return Object.entries(stores).reduce(
+  _initialStores = Object.entries(stores).reduce(
     (acc, [storeName, Store]) => {
       const storeInstanceName = getStoreInstanceName(storeName);
       const storeInstance = new Store(initialState[storeInstanceName] || {});
@@ -50,6 +50,7 @@ export function getOrInitialStores<STORES = any, FETCH = any>(stores: STORES, {
     },
     {}
   );
+  return _initialStores;
 };
 
 // @ts-ignore
@@ -71,8 +72,4 @@ export const useStores = (storeName: string) => {
   }, []);
   
   return _initialStores[storeName];
-};
-
-export const initializeRootStore = (stores = {}, options = {}) => {
-  _initialStores = getOrInitialStores(stores, options);
 };

@@ -1,6 +1,7 @@
 import { worker, getStoreInstanceName } from './rootStore';
 
 const sendData = (storeName: string, data: any) => {
+	if (typeof window === 'undefined') return;
 	worker.postMessage({
 		type: storeName,
 		data,
