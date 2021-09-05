@@ -43,8 +43,7 @@ export const SomeComponent = () => {
 <h3>Store class example</h3>
 
 ```
-import { RootState } from 'wx/types';
-
+import { RootState } from '@wertyga/wx';
 
 type RootStore = {
     userStore: UserStore,
