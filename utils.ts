@@ -1,4 +1,4 @@
-import { worker, getStoreInstanceName } from './rootStore';
+import { worker, getStoreInstanceName, getSetProp } from './rootStore';
 
 const sendData = (storeName: string, data: any) => {
 	if (typeof window === 'undefined') return;
@@ -8,22 +8,23 @@ const sendData = (storeName: string, data: any) => {
 	});
 };
 
-export function observe(initVal?) {
+function defineProp(name: string, value: any) {
+	if (!this[getSetProp]) this[getSetProp] = {};
+	if (!this[getSetProp][name]) this[getSetProp][name] = value;
+}
+
+export function observe(defaultValue?: any) {
 	return function (target, propertyKey): any {
-		if (!target.__state) {
-			target.__state = {};
-			Object.defineProperty(target, '__state', { enumerable: false });
-		}
-		target.__state[propertyKey] = initVal;
 		return {
-			set: function (value) {
-				console.log(value);
-				target.__state[propertyKey] = value;
+			set: function(value) {
+				defineProp.call(this, propertyKey, defaultValue);
+				this[getSetProp][propertyKey] = value;
 				const storeName = getStoreInstanceName(target.constructor.name);
 				sendData(storeName, target);
 			},
 			get: function() {
-				return target.__state[propertyKey];
+				defineProp.call(this, propertyKey, defaultValue);
+				return this[getSetProp][propertyKey];
 			},
 			enumerable: true,
 			configurable: true

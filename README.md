@@ -77,13 +77,14 @@ export const SomeComponent = () => {
 <h3>Store class example</h3>
 
 ```
-import { RootState } from '@wertyga/wx';
+import { RootState, observe } from '@wertyga/wx';
 
 type ProductStoreType = RootState<RootStore, ApolloClient<any>>;
 
 class UserStore {
     fetch: ProductStoreType['fetch'];
     rootStore: ProductStoreType['rootStore'];
+    @observe('defaultValue') username: string // This prop will be reactive in your React component
     
     ...Some class impliment
 }
